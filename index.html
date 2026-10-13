@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Safety Data Sheet Library</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #1a73e8;
+      --primary-dark: #1557b0;
+      --secondary: #34a853;
+      --accent-orange: #ff9800;
+      --accent-purple: #9c27b0;
+      --accent-red: #f44336;
+      --accent-teal: #009688;
+      --bg-light: #f8f9fa;
+      --bg-card: #ffffff;
+      --text-dark: #202124;
+      --text-muted: #666666;
+      --border-light: #e8eaed;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --shadow-hover: 0 8px 16px rgba(0, 0, 0, 0.15);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e8eaed 100%);
+      color: var(--text-dark);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header Section */
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+      padding: 60px 20px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-radius: 12px;
+      color: white;
+      box-shadow: var(--shadow);
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.95;
+      margin-bottom: 20px;
+    }
+
+    .header-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+
+    /* Search Section */
+    .search-container {
+      margin: 40px 0;
+      position: relative;
+    }
+
+    .search-wrapper {
+      position: relative;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      pointer-events: none;
+    }
+
+    #search {
+      width: 100%;
+      padding: 14px 16px 14px 48px;
+      font-size: 1rem;
+      border: 2px solid var(--border-light);
+      border-radius: 8px;
+      background: var(--bg-card);
+      color: var(--text-dark);
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+    }
+
+    #search:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1), var(--shadow);
+      transform: translateY(-2px);
+    }
+
+    #search::placeholder {
+      color: #bdc1c6;
+    }
+
+    /* Stats */
+    .stats {
+      text-align: center;
+      margin: 30px 0;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .stats strong {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Category Section */
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 28px;
+      margin: 50px 0;
+    }
+
+    .category-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      border-left: 5px solid var(--primary);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .category-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(26, 115, 232, 0.05) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .category-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .category-card:hover::before {
+      opacity: 1;
+    }
+
+    /* Category Colors */
+    .category-card.lubricants {
+      border-left-color: var(--accent-orange);
+    }
+
+    .category-card.sealants {
+      border-left-color: var(--accent-red);
+    }
+
+    .category-card.cleaners {
+      border-left-color: var(--accent-teal);
+    }
+
+    .category-card.coatings {
+      border-left-color: var(--accent-purple);
+    }
+
+    .category-card.specialty {
+      border-left-color: var(--secondary);
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .category-icon {
+      font-size: 1.8rem;
+      margin-right: 12px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+
+    .lubricants .category-icon {
+      background: rgba(255, 152, 0, 0.15);
+      color: var(--accent-orange);
+    }
+
+    .sealants .category-icon {
+      background: rgba(244, 67, 54, 0.15);
+      color: var(--accent-red);
+    }
+
+    .cleaners .category-icon {
+      background: rgba(0, 150, 136, 0.15);
+      color: var(--accent-teal);
+    }
+
+    .coatings .category-icon {
+      background: rgba(156, 39, 176, 0.15);
+      color: var(--accent-purple);
+    }
+
+    .specialty .category-icon {
+      background: rgba(52, 168, 83, 0.15);
+      color: var(--secondary);
+    }
+
+    .category-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      position: relative;
+      z-index: 1;
+    }
+
+    .category-count {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-left: auto;
+      background: var(--bg-light);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .pdf-list {
+      list-style: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pdf-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-light);
+      transition: var(--transition);
+    }
+
+    .pdf-item:last-child {
+      border-bottom: none;
+    }
+
+    .pdf-item.hidden {
+      display: none;
+    }
+
+    .pdf-link {
+      display: flex;
+      align-items: center;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+      padding: 8px;
+      margin: -8px;
+      border-radius: 6px;
+    }
+
+    .pdf-link:hover {
+      color: var(--primary-dark);
+      background: rgba(26, 115, 232, 0.08);
+      padding-left: 12px;
+    }
+
+    .pdf-link i {
+      margin-right: 10px;
+      opacity: 0.7;
+      transition: var(--transition);
+    }
+
+    .pdf-link:hover i {
+      opacity: 1;
+      transform: translateX(2px);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+      display: none;
+    }
+
+    .empty-state.active {
+      display: block;
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      color: var(--border-light);
+      margin-bottom: 16px;
+    }
+
+    .empty-state p {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      padding: 30px 20px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .footer strong {
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+
+    /* Scroll Animation */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .category-card {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .category-card:nth-child(1) { animation-delay: 0.1s; }
+    .category-card:nth-child(2) { animation-delay: 0.2s; }
+    .category-card:nth-child(3) { animation-delay: 0.3s; }
+    .category-card:nth-child(4) { animation-delay: 0.4s; }
+    .category-card:nth-child(5) { animation-delay: 0.5s; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .header p {
+        font-size: 1rem;
+      }
+
+      .header-icon {
+        font-size: 2rem;
+      }
+
+      .categories {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .category-card {
+        padding: 20px;
+      }
+
+      .category-header {
+        flex-wrap: wrap;
+      }
+
+      .category-count {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 12px;
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 12px;
+      }
+
+      .header {
+        padding: 40px 16px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      #search {
+        padding: 12px 12px 12px 40px;
+        font-size: 16px;
+      }
+
+      .category-card {
+        padding: 16px;
+        border-left-width: 4px;
+      }
+    }
+
+    /* Loading state */
+    .pdf-item.loading {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-icon">
+        <i class="fas fa-file-pdf"></i>
+      </div>
+      <h1>Safety Data Sheet Library</h1>
+      <p>Quick access to all product safety information and technical sheets</p>
+    </div>
+
+    <!-- Search -->
+    <div class="search-container">
+      <div class="search-wrapper">
+        <i class="fas fa-search search-icon"></i>
+        <input
+          id="search"
+          type="search"
+          placeholder="Search by product name… (e.g., WD40, Loctite, Belzona)"
+          aria-label="Search safety data sheets"
+        />
+      </div>
+      <div class="stats">
+        <strong id="total-count">39</strong> documents available
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div id="categories" class="categories"></div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="empty-state">
+      <i class="fas fa-search"></i>
+      <p>No matches found</p>
+      <p style="font-size: 0.9rem;">Try a different search term</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>
+        <strong>Tip:</strong> Press <strong>Ctrl+F5</strong> (Windows) or 
+        <strong>Cmd+Shift+R</strong> (Mac) to hard-refresh if links don't open.
+      </p>
+      <p style="margin-top: 12px; opacity: 0.8;">
+        <i class="fas fa-info-circle"></i> All PDFs open in a new tab
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Category data with organized PDFs
+    const categories = [
+      {
+        id: 'lubricants',
+        title: 'Lubricants & Dry Film Additives',
+        icon: 'fas fa-droplet',
+        files: [
+          { name: 'WD‑40 Multi‑Use Product (Aerosol Low VOC) — SDS', file: 'WD40-MultiUse-Aerosol-LowVOC-SDS.pdf' },
+          { name: 'MOLYKOTE 55 — SDS', file: 'Molykote-55-SDS.pdf' },
+          { name: 'Molycote DC111 50Z — SDS', file: 'Molycote-DC111-50Z-SDS.pdf' },
+          { name: 'Molycote P37 500g — MSDS', file: 'Molycote-P37-500g-MSDS.pdf' },
+          { name: 'SKD S2 — SDS', file: 'SKD-S2-SDS.pdf' },
+          { name: 'SKL WP2 — SDS', file: 'SKL-WP2.pdf' },
+        ]
+      },
+      {
+        id: 'sealants',
+        title: 'Sealants & Thread Lockers',
+        icon: 'fas fa-lock',
+        files: [
+          { name: 'Loctite 243 Thread Locker — SDS', file: 'Loctite-243-Thread-locker.pdf' },
+          { name: 'LOCTITE 515 Flange Sealant — SDS', file: 'LOCTITE-515-FLANGE-SEALANT.pdf' },
+          { name: 'LOCTITE 567 Thread Sealant — SDS', file: 'LOCTITE-567-THREAD-SEALANT.pdf' },
+          { name: 'Loctite 577 — SDS', file: 'Loctite-577.PDF' },
+          { name: 'LOCTITE 2701 — SDS', file: 'LOCTITE-2701.PDF' },
+          { name: 'LOCTITE 596 — SDS', file: 'LOCTITE-596.pdf' },
+          { name: 'HYLOMAR Jointing Compound — SDS', file: 'HYLOMAR-JOINTING-COMPOUND.pdf' },
+          { name: 'BELZONA 1111 — MSDS BASE', file: 'Belzona-1111-MSDS-Base.pdf' },
+          { name: 'BELZONA 1111 — MSDS SOLIDIFIER', file: 'Belzona-1111-MSDS-Solidifier.pdf' },
+          { name: 'BELZONA 5821 — MSDS BASE SILT GREY', file: 'Belzona-5821-MSDS-Base-SiltGrey.pdf' },
+          { name: 'BELZONA 5821 — MSDS SOLIDIFIER', file: 'Belzona-5821-MSDS-Solidifier.pdf' },
+        ]
+      },
+      {
+        id: 'cleaners',
+        title: 'Cleaners & Degreasers',
+        icon: 'fas fa-spray-can',
+        files: [
+          { name: 'CRC Lectra Clean II', file: 'CRC-Lectra-Clean-II.pdf' },
+          { name: 'CRC SP 400 — SDS', file: 'CRC-SP-400 SDS.pdf' },
+          { name: 'Degreaser HD — SDS', file: 'Degreaser-HD-SDS.pdf' },
+          { name: 'Spotcheck SKC‑S — Aerosol SDS', file: 'Spotcheck-SKC-S-Aerosol-SDS.pdf' },
+          { name: 'Exwell Paint Remover — MSDS', file: 'Exwell-Paint-Remover-MSDS.pdf' },
+          { name: 'Thinner ORYX — SDS', file: 'Thinner-SDS-ORYX.pdf' },
+        ]
+      },
+      {
+        id: 'coatings',
+        title: 'Coatings & RTV Compounds',
+        icon: 'fas fa-palette',
+        files: [
+          { name: 'Exwell Spray Paint — MSDS', file: 'Exwell-Spray-Paint-MSDS.pdf' },
+          { name: 'Permatex RTV Gasket Maker — SDS', file: 'RTV-GASKET-MAKER-PERMATEX.pdf' },
+          { name: 'SDS 650F+ Red RTV — SDS', file: 'SDS-650-F-Red-RTV.pdf' },
+          { name: 'Super Glue — SDS', file: 'Super-Glue-SDS.pdf' },
+        ]
+      },
+      {
+        id: 'specialty',
+        title: 'Specialty Products',
+        icon: 'fas fa-flask',
+        files: [
+          { name: 'Acetone — MSDS', file: 'Acetone-MSDS.pdf' },
+          { name: 'ABRO Grinding Paste — SDS', file: 'ABRO-Grinding-Paste.pdf' },
+          { name: 'WINKEL PRO 2W22 — SDS', file: 'WINKEL-PRO-2W22.pdf' },
+          { name: 'Nitrogen (Refrigerated Liquid) — SDS', file: 'Nitrogen-Refrigerated-Liquid-SDS.pdf' },
+        ]
+      }
+    ];
+
+    // Render categories
+    function renderCategories() {
+      const container = document.getElementById('categories');
+      container.innerHTML = '';
+
+      categories.forEach(category => {
+        const card = document.createElement('div');
+        card.className = `category-card ${category.id}`;
+
+        const header = document.createElement('div');
+        header.className = 'category-header';
+        header.innerHTML = `
+          <div class="category-icon"><i class="${category.icon}"></i></div>
+          <div class="category-title">${category.title}</div>
+          <div class="category-count">${category.files.length}</div>
+        `;
+
+        const list = document.createElement('ul');
+        list.className = 'pdf-list';
+
+        category.files.forEach(file => {
+          const item = document.createElement('li');
+          item.className = 'pdf-item';
+          item.innerHTML = `
+            <a href="${file.file}" class="pdf-link" target="_blank" rel="noopener noreferrer">
+              <i class="fas fa-file-pdf"></i>
+              <span>${file.name}</span>
+            </a>
+          `;
+          list.appendChild(item);
+        });
+
+        card.appendChild(header);
+        card.appendChild(list);
+        container.appendChild(card);
+      });
+    }
+
+    // Search functionality
+    function filterList() {
+      const term = document.getElementById('search').value.trim().toLowerCase();
+      const emptyState = document.getElementById('empty-state');
+      let visibleCount = 0;
+
+      categories.forEach(category => {
+        const card = document.querySelector(`.category-card.${category.id}`);
+        const items = card.querySelectorAll('.pdf-item');
+        let categoryVisible = false;
+
+        items.forEach(item => {
+          const text = item.textContent.toLowerCase();
+          const isVisible = term === '' || text.includes(term);
+          item.classList.toggle('hidden', !isVisible);
+          if (isVisible) {
+            categoryVisible = true;
+            visibleCount++;
+          }
+        });
+
+        card.style.display = categoryVisible ? '' : 'none';
+      });
+
+      emptyState.classList.toggle('active', visibleCount === 0 && term !== '');
+    }
+
+    // Event listeners
+    document.getElementById('search').addEventListener('input', filterList);
+    document.getElementById('search').addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.getElementById('search').value = '';
+        filterList();
+      }
+    });
+
+    // Initialize
+    renderCategories();
+  </script>
+</body>
+</html>
